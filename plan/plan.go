@@ -61,6 +61,7 @@ func (p *Plan) Calculate() *Plan {
 
 		// If there's no current record create desired record.
 		if !exists {
+			log.Debugf("Planning creation %s", desired)
 			changes.Create = append(changes.Create, desired)
 			continue
 		}
@@ -73,6 +74,7 @@ func (p *Plan) Calculate() *Plan {
 			continue
 		}
 
+    log.Debugf("Updating old %s", current)
 		changes.UpdateOld = append(changes.UpdateOld, current)
 		desired.MergeLabels(current.Labels) // inherit the labels from the dns provider, including Owner ID
 
@@ -84,6 +86,7 @@ func (p *Plan) Calculate() *Plan {
 			desired.RecordTTL = current.RecordTTL
 		}
 
+    log.Debugf("Updating new %s", desired)
 		changes.UpdateNew = append(changes.UpdateNew, desired)
 	}
 
