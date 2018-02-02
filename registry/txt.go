@@ -23,6 +23,8 @@ import (
 	"regexp"
 	"strings"
 
+	log "github.com/sirupsen/logrus"
+
 	"github.com/kubernetes-incubator/external-dns/endpoint"
 	"github.com/kubernetes-incubator/external-dns/plan"
 	"github.com/kubernetes-incubator/external-dns/provider"
@@ -81,6 +83,7 @@ func (im *TXTRegistry) Records() ([]*endpoint.Endpoint, error) {
 			continue
 		}
 		endpointDNSName := im.mapper.toEndpointName(record.DNSName)
+    log.Debugf("found %s TXT: %s -> %s",endpointDNSName, record.Target, ownerID)
 		ownerMap[endpointDNSName] = ownerID
 	}
 
@@ -150,9 +153,16 @@ func newPrefixNameMapper(prefix string) prefixNameMapper {
 	return prefixNameMapper{prefix: prefix}
 }
 
+// *. is a valix prefix for a DNSNAme, but it will be mapped to
+// its octal representation if it is in the middle of a name
+// This happens lways if the entry prefix is set.
 func (pr prefixNameMapper) toEndpointName(txtDNSName string) string {
 	if strings.HasPrefix(txtDNSName, pr.prefix) {
-		return strings.TrimPrefix(txtDNSName, pr.prefix)
+		n:=strings.TrimPrefix(txtDNSName, pr.prefix)
+    if strings.HasPrefix(n, "\\052.") {
+      return "*"+strings.TrimPrefix(n, "\\052")
+    }
+    return n
 	}
 	return ""
 }
