@@ -43,6 +43,7 @@ type Config struct {
 	DomainFilter         []string
 	ZoneIDFilter         []string
 	CidrIgnore           []string
+	DNSIgnore            []string
 	AWSZoneType          string
 	AzureConfigFile      string
 	AzureResourceGroup   string
@@ -79,6 +80,7 @@ var defaultConfig = &Config{
 	GoogleProject:        "",
 	DomainFilter:         []string{},
 	CidrIgnore:           []string{},
+	DNSIgnore:            []string{},
 	AWSZoneType:          "",
 	AzureConfigFile:      "/etc/kubernetes/azure.json",
 	AzureResourceGroup:   "",
@@ -139,6 +141,7 @@ func (cfg *Config) ParseFlags(args []string) error {
 	app.Flag("domain-filter", "Limit possible target zones by a domain suffix; specify multiple times for multiple domains (optional)").Default("").StringsVar(&cfg.DomainFilter)
 	app.Flag("zone-id-filter", "Filter target zones by hosted zone id; specify multiple times for multiple zones (optional)").Default("").StringsVar(&cfg.ZoneIDFilter)
 	app.Flag("cidr-ignore", "Limit DNS entries excluding IP addresses in given ranges").StringsVar(&cfg.CidrIgnore)
+	app.Flag("dns-ignore", "Limit DNS entries excluding given DNS (wirldcard) names").StringsVar(&cfg.DNSIgnore)
 	app.Flag("google-project", "When using the Google provider, specify the Google project (required when --provider=google)").Default(defaultConfig.GoogleProject).StringVar(&cfg.GoogleProject)
 	app.Flag("aws-zone-type", "When using the AWS provider, filter for zones of this type (optional, options: public, private)").Default(defaultConfig.AWSZoneType).EnumVar(&cfg.AWSZoneType, "", "public", "private")
 	app.Flag("azure-config-file", "When using the Azure provider, specify the Azure configuration file (required when --provider=azure").Default(defaultConfig.AzureConfigFile).StringVar(&cfg.AzureConfigFile)
